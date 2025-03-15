@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql_container
+    restart: always
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "Password123"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - ./datebase:/var/opt/mssql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  # flask_app:
+  #   build: .
+  #   container_name: flask_container
+  #   restart: always
+  #   ports:
+  #     - "5000:5000"
+  #   depends_on:
+  #     - mssql
+  #   environment:
+      
+  #   volumes:
+  #     - .:/app
+
