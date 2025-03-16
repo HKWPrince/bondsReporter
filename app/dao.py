@@ -146,7 +146,7 @@ class DatabaseHandler:
             sql_query += " AND name LIKE " + "N'%" + companyName + "%'"
 
         try:
-            sql_query = sql_query + " ORDER BY dataDate ASC "
+            sql_query = sql_query + " ORDER By id , dataDate Asc "
 
             df = pd.read_sql(sql_query, self.conn)
 

@@ -10,7 +10,9 @@ services:
       SA_PASSWORD: "Password123"
       ACCEPT_EULA: "Y"
     volumes:
-      - ./database:/var/opt/mssql 
+      - ./database/data:/var/opt/mssql/data  # ✅ 存放資料庫文件
+      - ./database/log:/var/opt/mssql/log  # ✅ 存放日誌文件
+      - ./database/secrets:/var/opt/mssql/secrets  # ✅ 存放加密密鑰
 
   # flask_app:
   #   build:
