@@ -10,11 +10,12 @@ services:
       SA_PASSWORD: "Password123"
       ACCEPT_EULA: "Y"
     volumes:
-      - ./datebase:/var/opt/mssql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./datebase:/var/opt/mssql 
 
   # flask_app:
-  #   build: .
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/Dockerfile
   #   container_name: flask_container
   #   restart: always
   #   ports:
@@ -22,7 +23,9 @@ services:
   #   depends_on:
   #     - mssql
   #   environment:
-      
+  #     FLASK_APP: run.py
+  #     FLASK_ENV: development
+  #     DATABASE_URL: "mssql+pyodbc://sa:Password123@mssql:1433/ReportDb?driver=ODBC+Driver+18+for+SQL+Server"
   #   volumes:
-  #     - .:/app
-
+  #     - ../app:/app  # ✅ 確保 Flask 應用可用
+  #     - ../run.py:/app/run.py  # ✅ 確保 run.py 存在

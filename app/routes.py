@@ -88,12 +88,11 @@ def process_excel(filename):
 
     # 確認是否重複上傳
     date_exist = db.check_convertible_bond_daily_exist(date)
-    print(date_exist)
-    if date_exist:
-        return date_exist
 
-    success = db.insert_convertible_bond_daily(df_file,date)
+    if date_exist:
+        return not date_exist
     
+    success = db.insert_convertible_bond_daily(df_file,date)
 
     return success
 
