@@ -1,48 +1,43 @@
-#!/bin/bash
-
-echo "Starting BondsReporter..."
+@echo off
+echo Starting BondsReporter...
 echo Please Wait...
 
-# 啟動 Docker Compose
+:: 進入 Docker 目錄
 cd docker
 
+:: 關閉並重啟 Docker 服務
 docker-compose down -v
 docker-compose up --build -d
+
+:: 返回專案根目錄
 cd ..
 
-# 等待 Docker 服務啟動
-sleep 5
+:: 等待 5 秒，讓 Docker 啟動
+timeout /t 5 /nobreak >nul
 
-# 檢查 Docker 是否正在運行
-if ! docker ps | grep mssql_container; then
-    echo "Docker services failed to start. Please check your Docker setup."
-    exit 1
-fi
+:: 檢查 Docker 是否正在運行
+docker ps | findstr "mssql_container"
+if %ERRORLEVEL% NEQ 0 (
+    echo Docker services failed to start. Please check your Docker setup.
+    pause
+    exit /b 1
+)
 
-echo "ondsReporter..."
-echo "Available services:"
+echo BondsReporter is running...
+echo Available services:
+docker ps --format "table {{.Names}}\t{{.Ports}}"
 
+:: 確保 Python 存在
+where python >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo Python is not installed. Please install Python and try again.
+    pause
+    exit /b 1
+)
 
+:: 啟動 Flask 應用程式
+echo Running Flask application...
+python run.py
 
-
-# 定義清理函數，當視窗關閉時停止 Docker
-cleanup() {
-    cd docker
-    echo "Closing Docker services..."
-    docker-compose down
-    exit 0
-}
-
-# 設置 trap，在腳本結束或視窗關閉時執行 cleanup()
-trap cleanup SIGINT SIGTERM EXIT
-
-# 確保 Python 存在
-if ! command -v python3 &> /dev/null
-then
-    echo "Python3 is not installed. Please install Python3 and try again."
-    exit 1
-fi
-
-# 啟動 Flask 應用程式
-echo "Running Flask application..."
-python3 run.py
+:: 等待使用者按鍵再關閉，防止視窗自動關閉
+pause
