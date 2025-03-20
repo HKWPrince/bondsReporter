@@ -39,6 +39,48 @@
 
 <body class="g-sidenav-show  bg-gray-200">
   <script>
+  // function applySavedSettings() {
+  //   console.log("applying")
+  //   let sidebarColorValue = getCookie("sidebarColor");
+  //   let sidebarTypeValue = getCookie("sidebarType");
+  //   let darkModeValue = getCookie("darkMode");
+  //   if (sidebarColorValue) {
+  //       sidebarColor(sidebarColorValue);
+  //   }
+  //   if (sidebarTypeValue) {
+  //       sidebarType(sidebarTypeValue);
+  //   }
+  //   if (darkModeValue) {
+  //     darkMode(darkModeValue);
+  // }
+  // }
+
+  // function setCookie(name, value, days) {
+  //   console.log("setitng")
+  //   let expires = "";
+  //   if (days) {
+  //       let date = new Date();
+  //       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  //       expires = "; expires=" + date.toUTCString();
+  //   }
+  //   document.cookie = name + "=" + value + "; path=/" + expires;
+  // }
+
+  // function getCookie(name) {
+  //   console.log("Getting")
+  //   let nameEQ = name + "=";
+  //   let cookies = document.cookie.split(';');
+  //   for (let i = 0; i < cookies.length; i++) {
+  //       let c = cookies[i].trim();
+  //       if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  //   }
+  //   return null;
+  // }
+  //   alert("Sidebar Color: " + getCookie("sidebarColor") + "\nSidebar Type: " + getCookie("sidebarType"));
+
+  //   // ✅ 頁面載入時自動套用 UI 設定
+  //   window.onload = applySavedSettings;
+
     // for 資料狀態按鈕
     function uploadFile() {
     document.getElementById("btn_uplod").click();
@@ -126,10 +168,10 @@
     <div class="sidenav-footer position-absolute w-100 bottom-0 ">
       <div class="mx-3">
         <a class="btn btn-outline-dark mt-4 w-100"
-          href="https://github.com/HKWPrince/bondsReporter"
-          type="button">Documentation</a>
+          href="https://www.tpex.org.tw/zh-tw/index.html"
+          type="button">Taipei Exchange</a>
         <a class="btn bg-gradient-dark w-100"
-          href="https://github.com/HKWPrince/bondsReporter" type="button">Upgrade to pro</a>
+          href="https://www.tpex.org.tw/zh-tw/bond/info/statistics-cb/day.html" type="button">Download Doc</a>
       </div>
     </div>
   </aside>
@@ -156,11 +198,11 @@
               <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank"
                 href="mailto:prince880211@gmail.com">Issue Report</a>
             </li>
-            <li class="mt-1">
+            <!-- <li class="mt-1">
               <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard"
                 data-icon="octicon-star" data-size="large" data-show-count="true"
                 aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
-            </li>
+            </li> -->
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
                 <div class="sidenav-toggler-inner">
@@ -176,7 +218,7 @@
               </a>
             </li>
             <li class="nav-item dropdown pe-3 d-flex align-items-center disabled">
-              <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown"
+              <a href="javascript:;" class="nav-link text-body p-0 disabled" id="dropdownMenuButton" data-bs-toggle="dropdown"
                 aria-expanded="false">
                 <i class="material-symbols-rounded">notifications</i>
               </a>
@@ -278,17 +320,17 @@
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Today's Money</p>
-                  <h4 class="mb-0">$53k</h4>
+                  <p class="text-sm mb-0 text-capitalize">Today is</p>
+                  <h4 class="mb-0">{{ date | safe }} </h4>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">weekend</i>
+                  <i class="material-symbols-rounded opacity-10">calendar_month</i>
                 </div>
               </div>
             </div>
             <hr class="dark horizontal my-0">
             <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">+55% </span>than last week</p>
+              <!-- <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">+55% </span>than last week</p> -->
             </div>
           </div>
         </div>
@@ -297,17 +339,17 @@
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Today's Users</p>
-                  <h4 class="mb-0">2300</h4>
+                  <p class="text-sm mb-0 text-capitalize">Latest Trading Day </p>
+                  <h4 class="mb-0">{{ tradingDate | safe }}</h4>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">person</i>
+                  <i class="material-symbols-rounded opacity-10">calendar_month</i>
                 </div>
               </div>
             </div>
             <hr class="dark horizontal my-0">
             <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">+3% </span>than last month</p>
+              <!-- <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">+3% </span>than last month</p> -->
             </div>
           </div>
         </div>
@@ -316,17 +358,17 @@
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Ads Views</p>
-                  <h4 class="mb-0">3,462</h4>
+                  <p class="text-sm mb-0 text-capitalize">Days of Data</p>
+                  <h4 class="mb-0">{{ dataDaysNum | safe }} days</h4>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">leaderboard</i>
+                  <i class="material-symbols-rounded opacity-10">Analytics</i>
                 </div>
               </div>
             </div>
             <hr class="dark horizontal my-0">
             <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><span class="text-danger font-weight-bolder">-2% </span>than yesterday</p>
+              <!-- <p class="mb-0 text-sm"><span class="text-danger font-weight-bolder">-2% </span>than yesterday</p> -->
             </div>
           </div>
         </div>
@@ -335,17 +377,17 @@
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Sales</p>
-                  <h4 class="mb-0">$103,430</h4>
+                  <p class="text-sm mb-0 text-capitalize">To be</p>
+                  <h4 class="mb-0">comming soon</h4>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">weekend</i>
+                  <i class="material-symbols-rounded opacity-10">featured_seasonal_and_gifts</i>
                 </div>
               </div>
             </div>
             <hr class="dark horizontal my-0">
             <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">+5% </span>than yesterday</p>
+              <!-- <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">+5% </span>than yesterday</p> -->
             </div>
           </div>
         </div>
@@ -502,7 +544,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {{ result | safe }}
+                      {{ recent_status | safe }}
                     </tbody>
                   </table>
                 </div>
@@ -681,7 +723,7 @@
           </div>
         </div>
         <hr class="horizontal dark my-sm-4">
-        <a class="btn btn-outline-dark w-100" href="">View documentation</a>
+        <!-- <a class="btn btn-outline-dark w-100" href="">View documentation</a>
         <div class="w-100 text-center">
           <a class="github-button" href="https://github.com/HKWPrince/bondsReporter"
             data-icon="octicon-star" data-size="large" data-show-count="true"
@@ -694,7 +736,7 @@
           <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/material-dashboard"
             class="btn btn-dark mb-0 me-2" target="_blank">
             <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-          </a>
+          </a> -->
         </div>
       </div>
     </div>

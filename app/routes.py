@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, send_file, jsonify
 import os
 import pandas as pd
 from app.dao import DatabaseHandler
 import time
+import datetime
 
 # 建立 Blueprint
 main = Blueprint("main", __name__)
@@ -10,16 +11,27 @@ main = Blueprint("main", __name__)
 # 查詢近30天資料狀態 
 def query_recent_status():
     db = DatabaseHandler()
-    status = db.query_recent_status()
+    recent_status = db.query_recent_status()
+    return recent_status
+# 查詢資料庫資料天數
+def get_dataDaysNum():
+    db = DatabaseHandler()
+    dataDaysNum = db.get_dataDaysNum()
+    return dataDaysNum
+# 查詢最近交易日
+def get_TradingDate():
+    db = DatabaseHandler()
+    tradingDate = db.get_TradingDate()
+    return tradingDate
 
-    return status
 
 @main.route("/")
 def home():
-    status=query_recent_status()
-    if status:
-        result = status
-    return render_template("index.html", result = result)
+    recent_status=query_recent_status()
+    dataDaysNum = get_dataDaysNum()
+    tradingDate = get_TradingDate()
+    date = datetime.datetime.now().strftime("%Y-%m-%d(%A)")
+    return render_template("index.html", recent_status = recent_status, dataDaysNum=dataDaysNum , tradingDate= tradingDate, date=date)
 
 @main.route("/dashboard")
 def dashboard():
@@ -117,7 +129,7 @@ def upload_file():
             flash("Success: File uploaded and processed successfully!")
             return redirect(url_for("main.home"))
         else:
-            flash("Error: The data has been uploaded. Please check!")
+            flash("Error: The data hasn't been uploaded. Please check!")
             return redirect(url_for("main.home"))
     else:
         flash("Error:Invalid file format. Please upload a Excel file!")

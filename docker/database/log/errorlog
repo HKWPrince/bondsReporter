@@ -73,3 +73,4 @@
 2025-03-16 13:56:31.82 spid51      Using 'xplog70.dll' version '2019.150.4430' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.
 2025-03-16 13:56:32.01 spid52      Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.
 2025-03-16 13:56:32.05 spid52      Using 'xpstar.dll' version '2019.150.4430' to execute extended stored procedure 'xp_instance_regread'. This is an informational message only; no user action is required.
+2025-03-20 12:35:15.47 spid69      AppDomain 2 (master.sys[runtime].1) created.

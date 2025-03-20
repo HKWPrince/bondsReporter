@@ -1,4 +1,6 @@
 .DS_Store
 
-/docker/databasecd
-/uploads
+app/__pycache__/
+app/__pycache__/
+docker/database/
+uploads/

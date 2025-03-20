@@ -119,9 +119,46 @@ if (document.querySelector('.fixed-plugin')) {
   }
 
 }
+  function applySavedSettings() {
+    let sidebarColorValue = getCookie("sidebarColor");
+    let sidebarTypeValue = getCookie("sidebarType");
+    let darkModeValue = getCookie("darkMode");
+    if (sidebarColorValue) {
+        sidebarColor(sidebarColorValue);
+    }
+    if (sidebarTypeValue) {
+        sidebarType(sidebarTypeValue);
+    }
+    if (darkModeValue) {
+      darkMode(darkModeValue);
+  }
+  }
+
+  function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + "; path=/" + expires;
+  }
+
+  function getCookie(name) {
+    let nameEQ = name + "=";
+    let cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let c = cookies[i].trim();
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
 
 //Set Sidebar Color
 function sidebarColor(a) {
+  console.log(a)
+   // ✅ 存入 Cookie
+  setCookie("sidebarColor", a, 30);
   var parent = document.querySelector(".nav-link.active");
   var color = a.getAttribute("data-color");
 
@@ -148,6 +185,8 @@ function sidebarColor(a) {
 
 // Set Sidebar Type
 function sidebarType(a) {
+  // ✅ 存入 Cookie
+  setCookie("sidebarType", a, 30);
   var parent = a.parentElement.children;
   var color = a.getAttribute("data-class");
   var body = document.querySelector("body");
@@ -656,6 +695,7 @@ function sidenavTypeOnResize() {
 
 // Light Mode / Dark Mode
 function darkMode(el) {
+  setCookie("darkMode", el, 30);
   const body = document.getElementsByTagName('body')[0];
   const hr = document.querySelectorAll('div:not(.sidenav) > hr');
   const hr_card = document.querySelectorAll('div:not(.bg-gradient-dark) hr');

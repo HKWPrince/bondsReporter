@@ -92,13 +92,12 @@ class DatabaseHandler:
                         float(row[14]) if pd.notnull(row[14]) else None,  # next_limit_up
                         float(row[15]) if pd.notnull(row[15]) else None  # next_limit_down
                         )
-                        # print("INSERT SUCCEED")
                         self.conn.commit()
                     except Exception as e:
                         print(f"Error encountered while processing row {index}")
                         print(f"Row data: {row}")
                         print(f"Error: {str(e)}")
-                    continue  # ❌ `break` 會影響後續的數據處理
+                    return False
         except Exception as e:
             print(f"Database insert error: {e}")
             return False
@@ -261,6 +260,58 @@ class DatabaseHandler:
                                 </tr>
                         """
             return result
+        except Exception as e:
+            print(f"Database query error: {e}")
+            return None
+        finally:
+            self.conn.close()
+    # 查詢資料庫資料天數
+    def get_dataDaysNum(self):
+        self.connect()
+        if not self.conn:
+            return None
+        
+        try:
+            sql_query = """                                                
+                        SELECT 
+                            count(distinct dataDate) as 'Num'
+                        FROM ConvertibleBondDaily
+                        """
+
+            df = pd.read_sql(sql_query, self.conn)
+            result = df["Num"][0]
+            return str(result)
+        
+        except Exception as e:
+            print(f"Database query error: {e}")
+            return None
+        finally:
+            self.conn.close()
+
+    # 查詢最近交易日
+    def get_TradingDate(self):
+        self.connect()
+        if not self.conn:
+            return None
+        
+        try:
+            sql_query = """                                                
+                        SELECT Top(1) Concat([Date],(Case
+                            When [Day] = '1' Then ' (Mon)'
+                            When [Day] = '2' Then ' (Tus)'
+                            When [Day] = '3' Then ' (Wed)'
+                            When [Day] = '4' Then ' (Thu)'
+                            When [Day] = '5' Then ' (Fri)'
+                        End)) as 'Date'
+                        FROM [ReportDb].[dbo].[Date]
+                        Where [Day] <>  '0' and [Day] <> '6' and [Date] <= GETDATE()
+                        ORDER BY [Date] DESC
+                        """
+
+            df = pd.read_sql(sql_query, self.conn)
+            result = df["Date"][0]
+            return str(result)
+        
         except Exception as e:
             print(f"Database query error: {e}")
             return None
