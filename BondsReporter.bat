@@ -1,6 +1,6 @@
 @echo off
 title BondsReporter Startup
-chcp 65001 >nul  :: 支援 UTF-8 中文輸出
+chcp 65001 >nul
 
 :: 設定顏色變數（使用 ANSI escape code）
 set "ESC="
@@ -77,9 +77,8 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :: 5/5 啟動 Flask
-echo %CYAN%%LINE%%RESET%
 echo %BOLD%%CYAN% 5/5 Starting BondsReporter...%RESET%
-echo %GREEN% Flask is running. Press Ctrl+C to stop and clean up.%RESET%
+echo %GREEN% ⚠️Flask is running. Press Ctrl+C to stop and clean up.⚠️%RESET%
 echo %CYAN%%LINE%%RESET%
 
 :: === 啟動 Flask & 等待 Ctrl+C ===
