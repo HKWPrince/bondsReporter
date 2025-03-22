@@ -62,7 +62,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :: 啟動 Flask 應用程式 (在新 cmd 窗口執行)
-start cmd /k python run.py
+python run.py
 echo 5/5 BondsReporter is running...
 :: 等待 cmd 視窗關閉，然後停止 Docker 容器
 :loop
