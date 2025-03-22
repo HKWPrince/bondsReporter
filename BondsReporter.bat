@@ -51,7 +51,7 @@ echo %BOLD%%CYAN% 3/5 Rebuilding Docker containers...%RESET%
 
 cd docker
 docker-compose down -v
-docker-compose up --build -d
+docker-compose up -d
 cd ..
 
 timeout /t 5 >nul
