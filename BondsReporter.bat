@@ -1,76 +1,93 @@
 @echo off
-echo 1/5 Updating project from GitHub...
+title BondsReporter Startup
+chcp 65001 >nul  :: 支援 UTF-8 中文輸出
+
+:: 設定顏色變數（使用 ANSI escape code）
+set "ESC="
+set "RESET=%ESC%[0m"
+set "BOLD=%ESC%[1m"
+set "GREEN=%ESC%[32m"
+set "RED=%ESC%[31m"
+set "YELLOW=%ESC%[33m"
+set "CYAN=%ESC%[36m"
+
+:: 顯示分隔線
+set "LINE=-----------------------------------------------------------"
+
+:: 1/5 Git Pull
+echo %CYAN%%LINE%%RESET%
+echo %BOLD%%CYAN% 1/5 Updating project from GitHub...%RESET%
 git pull origin main
-
-
 if %ERRORLEVEL% NEQ 0 (
-    echo Git pull failed. Please check your network or repository settings.
+    echo %RED% Git pull failed. Please check your network or repository settings. %RESET%
     pause
     exit /b 1
 )
 
+:: 2/5 Docker 狀態檢查
+echo %CYAN%%LINE%%RESET%
+echo %BOLD%%CYAN% 2/5 Checking if Docker is running...%RESET%
 
-echo 2/5 Checking if Docker is running...
-
-:: 嘗試取得 Docker 服務狀態
 tasklist | findstr "Docker Desktop.exe" >nul
 if %ERRORLEVEL% NEQ 0 (
-    echo Docker is not running. Starting Docker...
+    echo %YELLOW% Docker is not running. Starting Docker... %RESET%
     start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-    
     echo Waiting for Docker to start...
     timeout /t 10 >nul
     
     :check_docker
     docker info >nul 2>&1
     if %ERRORLEVEL% NEQ 0 (
-        echo Docker is still starting, waiting 5 more seconds...
+        echo Docker is still starting... waiting 5 more seconds...
         timeout /t 5 >nul
         goto check_docker
     )
 )
 
-echo 3/5 Docker is running. Continuing execution...
+echo %GREEN% Docker is running. Continuing... %RESET%
 
-:: 進入 Docker 目錄
+:: 3/5 Docker Compose
+echo %CYAN%%LINE%%RESET%
+echo %BOLD%%CYAN% 3/5 Rebuilding Docker containers...%RESET%
+
 cd docker
-
-:: 關閉並重啟 Docker 容器
 docker-compose down -v
 docker-compose up --build -d
-
-:: 返回專案根目錄
 cd ..
 
-:: 等待 5 秒，確保 Docker 服務啟動
-timeout /t 5 /nobreak >nul
+timeout /t 5 >nul
 
-:: 檢查 Docker 容器是否運行
+:: 4/5 Docker 容器檢查
 docker ps | findstr "mssql_container" >nul
 if %ERRORLEVEL% NEQ 0 (
-    echo 4/5 Docker services failed to start. Please check your Docker setup.
+    echo %RED% Docker services failed to start. %RESET%
     pause
     exit /b 1
 )
 
-:: 確保 Python 存在
+:: Python 檢查
 where python >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo Python is not installed. Please install Python and try again.
+    echo %RED% Python is not installed. Please install Python and try again. %RESET%
     pause
     exit /b 1
 )
 
-:: 啟動 Flask 應用程式 (在新 cmd 窗口執行)
-python run.py
-echo 5/5 BondsReporter is running...
-:: 等待 cmd 視窗關閉，然後停止 Docker 容器
-:loop
-tasklist | findstr "python.exe" >nul
-if %ERRORLEVEL% NEQ 0 (
-    echo Closing Docker services...
-    docker-compose down
-    exit
-)
-timeout /t 3 >nul
-goto loop
+:: 5/5 啟動 Flask
+echo %CYAN%%LINE%%RESET%
+echo %BOLD%%CYAN% 5/5 Starting BondsReporter...%RESET%
+echo %GREEN% Flask is running. Press Ctrl+C to stop and clean up.%RESET%
+echo %CYAN%%LINE%%RESET%
+
+:: === 啟動 Flask & 等待 Ctrl+C ===
+:: 使用 CALL 讓 Ctrl+C 結束後還能繼續往下走
+call python run.py
+
+:: 自動關閉 Docker 容器
+echo %YELLOW% Shutting down Docker containers...%RESET%
+cd docker
+docker-compose down
+cd ..
+
+echo %GREEN% Cleanup complete. Goodbye! %RESET%
+pause
