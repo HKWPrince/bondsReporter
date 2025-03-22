@@ -1,4 +1,6 @@
 @echo off
+git pull origin main
+
 echo Checking if Docker is running...
 
 :: 嘗試取得 Docker 服務狀態

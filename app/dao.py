@@ -97,7 +97,7 @@ class DatabaseHandler:
                         print(f"Error encountered while processing row {index}")
                         print(f"Row data: {row}")
                         print(f"Error: {str(e)}")
-                    return False
+                        return False
         except Exception as e:
             print(f"Database insert error: {e}")
             return False
