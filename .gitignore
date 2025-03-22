@@ -1,5 +1,6 @@
 .DS_Store
 
 app/__pycache__/
+app/file/
 docker/database/
 uploads/
