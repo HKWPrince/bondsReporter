@@ -64,6 +64,10 @@ if %ERRORLEVEL% NEQ 0 (
     pause
     exit /b 1
 )
+:: 3/5 Docker Compose
+echo %CYAN%%LINE%%RESET%
+echo %BOLD%%CYAN% 4/5 Python is running...%RESET%
+echo %CYAN%%LINE%%RESET%
 
 :: Python 檢查
 where python >nul 2>nul
@@ -89,5 +93,12 @@ cd docker
 docker-compose down
 cd ..
 
-echo %GREEN% Cleanup complete. Goodbye! %RESET%
+echo %GREEN% BondsReporter is running...%RESET%
+echo %GREEN% Please open browser then enter the address below%RESET%
+echo %GREEN% http://127.0.0.1:5000 %RESET%
+echo %CYAN%%LINE%%RESET%
+echo %CYAN%%LINE%%RESET%
+echo %BOLD%%CYAN% If you wan to leave BondsReporter...%RESET%
+echo %RED%Press Ctrl+C to stop and clean up.%RESET%
+echo %CYAN%%LINE%%RESET%
 pause
