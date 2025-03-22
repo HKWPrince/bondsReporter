@@ -3,7 +3,7 @@ title BondsReporter Startup
 chcp 65001 >nul  :: 支援 UTF-8 中文輸出
 
 :: 設定顏色變數（使用 ANSI escape code）
-set "ESC="
+set "ESC= "
 set "RESET=%ESC%[0m"
 set "BOLD=%ESC%[1m"
 set "GREEN=%ESC%[32m"
@@ -96,7 +96,8 @@ cd ..
 echo %GREEN% BondsReporter is running...%RESET%
 echo %GREEN% Please open browser then enter the address below%RESET%
 echo %GREEN% http://127.0.0.1:5000 %RESET%
-echo %CYAN%%LINE%%RESET%
+:: 等待 5 秒
+timeout /t 5 /nobreak >nul
 echo %CYAN%%LINE%%RESET%
 echo %BOLD%%CYAN% If you wan to leave BondsReporter...%RESET%
 echo %RED%Press Ctrl+C to stop and clean up.%RESET%
