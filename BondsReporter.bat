@@ -3,14 +3,13 @@ title BondsReporter Startup
 chcp 65001 >nul  :: 支援 UTF-8 中文輸出
 
 :: 設定顏色變數（使用 ANSI escape code）
-set "ESC= "
+set "ESC="
 set "RESET=%ESC%[0m"
 set "BOLD=%ESC%[1m"
 set "GREEN=%ESC%[32m"
 set "RED=%ESC%[31m"
 set "YELLOW=%ESC%[33m"
 set "CYAN=%ESC%[36m"
-
 :: 顯示分隔線
 set "LINE=-----------------------------------------------------------"
 
