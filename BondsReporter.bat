@@ -2,6 +2,14 @@
 echo 1/5 Updating project from GitHub...
 git pull origin main
 
+
+if %ERRORLEVEL% NEQ 0 (
+    echo Git pull failed. Please check your network or repository settings.
+    pause
+    exit /b 1
+)
+
+
 echo 2/5 Checking if Docker is running...
 
 :: 嘗試取得 Docker 服務狀態
@@ -45,21 +53,24 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo BondsReporter is running...
-echo Available services:
-
-
 :: 確保 Python 存在
 where python >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo 5/5 Python is not installed. Please install Python and try again.
+    echo Python is not installed. Please install Python and try again.
     pause
     exit /b 1
 )
 
-:: 啟動 Flask 應用程式
-echo Running Flask application...
-python run.py
-
-:: 防止視窗關閉
-pause
+:: 啟動 Flask 應用程式 (在新 cmd 窗口執行)
+start cmd /k python run.py
+echo 5/5 BondsReporter is running...
+:: 等待 cmd 視窗關閉，然後停止 Docker 容器
+:loop
+tasklist | findstr "python.exe" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo Closing Docker services...
+    docker-compose down
+    exit
+)
+timeout /t 3 >nul
+goto loop
