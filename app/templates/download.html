@@ -121,13 +121,12 @@
         </div>
         <div class="sidenav-footer position-absolute w-100 bottom-0 ">
             <div class="mx-3">
-              <a class="btn btn-outline-dark mt-4 w-100"
-                href="https://www.tpex.org.tw/zh-tw/index.html"
-                type="button">Taipei Exchange</a>
-              <a class="btn bg-gradient-dark w-100"
-                href="https://www.tpex.org.tw/zh-tw/bond/info/statistics-cb/day.html" type="button">Download Doc</a>
+                <a class="btn btn-outline-dark mt-4 w-100" href="https://www.tpex.org.tw/zh-tw/index.html"
+                    type="button">Taipei Exchange</a>
+                <a class="btn bg-gradient-dark w-100"
+                    href="https://www.tpex.org.tw/zh-tw/bond/info/statistics-cb/day.html" type="button">Download Doc</a>
             </div>
-          </div>
+        </div>
     </aside>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
@@ -268,15 +267,15 @@
         <!-- End Navbar -->
         <div class="container-fluid py-2">
 
-            <!-- Upload File -->
+            <!-- Download File -->
             <div class="row">
                 <div class="col-md-12 mb-lg-0 mb-4">
                     <div class="card mt-4">
-                        <!-- 檔案上傳 -->
+                        <!-- 檔案下載 -->
                         <div class="card-header pb-0 p-3">
                             <div class="row">
                                 <div class="col-12 d-flex align-items-center">
-                                    <h6 class="mb-0">Upload File</h6>
+                                    <h6 class="mb-0">Download File</h6>
                                 </div>
                                 <div class="col-12 d-flex align-items-center">
                                     <p class="text-sm">Fill the form to download an excel</p>
@@ -328,8 +327,13 @@
                                     </div>
                                     <hr class="dark horizontal my-0">
                                     <div class="text-center">
-                                        <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Download
+                                        <button type="submit"
+                                            class="btn bg-gradient-dark col-xl-4 col-sm-6 mb-xl-0 mb-4 ">Download
                                             <i class="material-symbols-rounded opacity-5" disabled>download</i>
+                                        </button>
+                                        <button type="submit"
+                                            class="btn bg-gradient-dark col-xl-4 col-sm-6 mb-xl-0 mb-4">Search
+                                            <i class="material-symbols-rounded opacity-5" disabled>Search</i>
                                         </button>
                                     </div>
                                 </form>
@@ -339,7 +343,330 @@
                         </div>
                     </div>
                 </div>
+                <div class="card-body p-3">
+                </div>
             </div>
+            <!-- 搜尋結果 -->
+            <!-- <div class="row">
+                <div class="col-md-12 mb-lg-0 mb-4">
+                    <div class="card">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="row">
+                                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                                        <h6 class="text-white text-capitalize ps-3">Search Results</h6>
+                                    </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive">
+                                <table class="table align-items-center mb-0 table-hover border border-secondary border-start-0 border-end-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                日期</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                代號</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                名稱</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                交易</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                收市</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                漲跌</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                開市</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                最高</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                最低</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                筆數</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                單位</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                金額</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                均價</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                明日參價</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                明日漲停</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                明日跌停</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-light border border-secondary border-start-0 border-end-0">
+                                        <tr>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">2025-02-24</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">11011</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">台泥一永</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">等價</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">-0.25</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.30</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">106.90</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">84</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">359</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">38461900</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.13</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">117.70</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">96.30</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">2025-02-24</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">11011</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">台泥一永</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">等價</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">-0.25</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.30</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">106.90</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">84</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">359</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">38461900</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.13</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">117.70</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">96.30</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">2025-02-24</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">11011</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">台泥一永</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">等價</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">-0.25</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.30</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">106.90</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">84</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">359</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">38461900</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.13</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">107.00</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">117.70</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="align-middle text-center text-s">
+                                                    <span class="text-xs font-weight-bold">96.30</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
 
 
             <footer class="footer py-4  ">
@@ -363,8 +690,8 @@
                                         target="_blank">BoundsReport</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="https://www.linkedin.com/in/kuo-wei-huang-827407203/" class="nav-link text-muted"
-                                        target="_blank">About
+                                    <a href="https://www.linkedin.com/in/kuo-wei-huang-827407203/"
+                                        class="nav-link text-muted" target="_blank">About
                                         Us</a>
                                 </li>
                                 <!-- <li class="nav-item">
@@ -467,9 +794,9 @@
                         class="btn btn-dark mb-0 me-2" target="_blank">
                         <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
                     </a> -->
-                </div>
             </div>
         </div>
+    </div>
     </div>
     <!--   Core JS Files   -->
     <script src="./static/assets/js/core/popper.min.js"></script>
