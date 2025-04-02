@@ -14,14 +14,14 @@ class DatabaseHandler:
         '''
         self.conn = None
 
-    """建立資料庫連線"""
+    #"""建立資料庫連線"""
     def connect(self):
         try:
             self.conn = sql.connect(self.connection_string, timeout=0)
         except Exception as e:
             print(f"Database connection failed: {e}")
     
-    """關閉資料庫連線"""
+    #"""關閉資料庫連線"""
     def close(self):
         if self.conn:
             self.conn.close()
@@ -55,7 +55,7 @@ class DatabaseHandler:
             self.conn.close()
 
 
-    """加入資料到 ConvertibleBondDaily 資料表"""
+    #"""加入資料到 ConvertibleBondDaily 資料表"""
     def insert_convertible_bond_daily(self, data, date):
         if self.conn is None or self.conn.closed:
             self.connect() # 無法連接時，直接返回
@@ -107,8 +107,8 @@ class DatabaseHandler:
                 return True
 
     
-    """查詢符合條件的可轉債交易數據"""
-    def query_convertible_bond(self, startDate, endDate, id=None, companyName=None):
+    #"""查詢符合條件的可轉債交易數據，並匯出Excel file"""
+    def download_convertible_bond(self, startDate, endDate, id=None, companyName=None):
         self.connect()
         if not self.conn:
             return None
@@ -163,8 +163,281 @@ class DatabaseHandler:
             return None
         finally:
             self.conn.close()
+    
+    #"""查詢符合條件的可轉債交易數據，並回傳至前端"""
+    def query_convertible_bond(self, startDate, endDate, id=None, companyName=None):
+        self.connect()
+        if not self.conn:
+            return None
 
-    """查詢近30天資料狀況"""
+        sql_query = """
+            SELECT 
+            dataDate, 
+            id, 
+            name, 
+            trade_type, 
+            closing_price, 
+            change_price, 
+            open_price, 
+            high_price, 
+            low_price,
+            trade_count, 
+            unit_count, 
+            total_amount, 
+            avg_price, 
+            next_ref_price, 
+            next_limit_up, 
+            next_limit_down
+        FROM ConvertibleBondDaily
+        WHERE dataDate BETWEEN """
+        
+        sql_query += "'"+startDate+"'" + " AND " + "'" +endDate+ "'"
+
+        # 如果有輸入公司 ID
+        if id:
+            sql_query += " AND id = " + "'" + id + "'"
+
+        # 如果有輸入公司名稱
+        if companyName:
+            sql_query += " AND name LIKE " + "N'%" + companyName + "%'"
+    
+        result = """<div class="row">
+                <div class="col-md-12 mb-lg-0 mb-4">
+                    <div class="card">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="row">
+                                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                                        <h6 class="text-white text-capitalize ps-3">Search Results</h6>
+                                    </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive">
+                                <table class="table align-items-center mb-0 table-hover border border-secondary border-start-0 border-end-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                日期</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                代號</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                名稱</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                交易</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                收市</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                漲跌</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                開市</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                最高</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                最低</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                筆數</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                單位</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                金額</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                均價</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                明日參價</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                明日漲停</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-s opacity-7">
+                                                明日跌停</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-light border border-secondary border-start-0 border-end-0">
+                                        """
+
+        try:
+            sql_query = sql_query + " ORDER By id , dataDate Asc "
+            df = pd.read_sql(sql_query, self.conn)
+
+            for i in range(0,len(df)):
+                #日期
+                result = result+"""
+                                <tr>
+                                                        <td>
+                                                            <div class="align-middle text-center text-s">
+                                                                <span class="text-xs font-weight-bold">
+                                    """+ str(df.iloc[i]["dataDate"]) + """</span>
+                                                            </div>
+                                                        </td>"""
+                
+                #代號
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["id"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #名稱
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["name"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                #收市
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["trade_type"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+
+                #收市
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["closing_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #漲跌
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["change_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #開市
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["open_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #最高
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["high_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #最低
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["low_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #筆數
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["trade_count"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #單位
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["unit_count"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #金額
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["total_amount"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #均價
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["avg_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #明日參價
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["next_ref_price"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #明日漲停
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["next_limit_up"]) + """</span>
+                                                                </div>
+                                                            </td>"""
+                
+                #明日跌停
+                result = result+"""
+                                <td>
+                                                                <div class="align-middle text-center text-s">
+                                                                    <span class="text-xs font-weight-bold">
+                                """+ str(df.iloc[i]["next_limit_down"]) + """</span>
+                                                                </div>
+                                                            </td>
+                                                                </tr>"""
+                
+            result = result+ """
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            """
+            return result
+        
+        except Exception as e:
+            print(f"Database query error: {e}")
+            return None
+        finally:
+            self.conn.close()
+
+    #"""查詢近30天資料狀況"""
     def query_recent_status(self):
         self.connect()
         if not self.conn:

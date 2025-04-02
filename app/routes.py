@@ -138,6 +138,7 @@ def upload_file():
 # **下載檔案**
 @main.route("/download_ConvertibleBondDaily", methods = ["GET"])
 def download_ConvertibleBondDaily():
+    table = ""
     # 參數
     startDate = request.args.get('startDate')  # 格式: YYYY-MM-DD
     endDate = request.args.get('endDate')      # 格式: YYYY-MM-DD
@@ -151,16 +152,24 @@ def download_ConvertibleBondDaily():
     if time.strptime(startDate, "%Y-%m-%d") > time.strptime(endDate, "%Y-%m-%d") :
         flash("Error: Start date should be earlier than end date!")
         return render_template("download.html")
-
     db = DatabaseHandler()
-    filename = db.query_convertible_bond(startDate, endDate, id, companyName)
+    # 判斷下載或是搜尋
+    method = request.args.get('method')
 
-    if filename:
-        filename = os.path.join(current_app.config["File_FOLDER"], filename)
-    else:
-        flash("Error: Data Not Found!")
-        return render_template("download.html")
+    if method == 'search':
+        table = db.query_convertible_bond(startDate, endDate, id, companyName)
+        return render_template("download.html", table = table, startDate = startDate, endDate=endDate, id=id, companyName=companyName)
 
-    # 回傳 Excel 檔案給用戶下載
-    return send_file(filename, as_attachment=True)
+    elif method == 'download':
+        
+        filename = db.download_convertible_bond(startDate, endDate, id, companyName)
+
+        if filename:
+            filename = os.path.join(current_app.config["File_FOLDER"], filename)
+        else:
+            flash("Error: Data Not Found!")
+            return render_template("download.html")
+
+        # 回傳 Excel 檔案給用戶下載
+        return send_file(filename, as_attachment=True)
 
