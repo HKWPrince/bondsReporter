@@ -54,6 +54,25 @@ class DatabaseHandler:
         finally:
             self.conn.close()
 
+    #"""加入資料到 ConvertibleBondDaily 資料表"""
+    def insert_convertible_bond_daily_upload_log(self, data):
+        if self.conn is None or self.conn.closed:
+            self.connect() # 無法連接時，直接返回
+
+        SQL_STATEMENT = """
+                        INSERT INTO ConvertibleBondDaily_upload_log
+                        VALUES ( '"""+data+"""',GETDATE()) 
+                        """
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(SQL_STATEMENT)
+            self.conn.commit()
+        except Exception as e:
+            print(f"Insert convertible_bond_daily_upload_log error: {e}")
+        finally:
+                cursor.close()
+                self.conn.close()
+
 
     #"""加入資料到 ConvertibleBondDaily 資料表"""
     def insert_convertible_bond_daily(self, data, date):
@@ -561,6 +580,30 @@ class DatabaseHandler:
         finally:
             self.conn.close()
 
+    # 查詢ConvertibleBondDaily最近一筆上傳日期
+    def get_LatestUpload(self):
+        self.connect()
+        if not self.conn:
+            return None
+        
+        try:
+            sql_query = """                                                
+                        SELECT TOP (1) 
+                        [Date]
+                        FROM [ReportDb].[dbo].[ConvertibleBondDaily_upload_log]
+                        ORDER BY [index] Desc
+                        """
+
+            df = pd.read_sql(sql_query, self.conn)
+            result = df["Date"][0]
+            return str(result)
+        
+        except Exception as e:
+            print(f"Database query error: {e}")
+            return None
+        finally:
+            self.conn.close()
+    
     # 查詢最近交易日
     def get_TradingDate(self):
         self.connect()

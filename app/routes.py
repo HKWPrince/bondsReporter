@@ -24,6 +24,11 @@ def get_TradingDate():
     tradingDate = db.get_TradingDate()
     return tradingDate
 
+# 查詢最近交易日
+def get_LatestUpload():
+    db = DatabaseHandler()
+    latestUpload = db.get_LatestUpload()
+    return latestUpload
 
 @main.route("/")
 def home():
@@ -31,7 +36,8 @@ def home():
     dataDaysNum = get_dataDaysNum()
     tradingDate = get_TradingDate()
     date = datetime.datetime.now().strftime("%Y-%m-%d(%A)")
-    return render_template("index.html", recent_status = recent_status, dataDaysNum=dataDaysNum , tradingDate= tradingDate, date=date)
+    latestUpload = get_LatestUpload()
+    return render_template("index.html", recent_status = recent_status, dataDaysNum=dataDaysNum , tradingDate= tradingDate, date=date , latestUpload=latestUpload)
 
 @main.route("/dashboard")
 def dashboard():
@@ -104,7 +110,11 @@ def process_excel(filename):
     if date_exist:
         return not date_exist
     
+    # 匯入SQL Server
     success = db.insert_convertible_bond_daily(df_file,date)
+
+    # 記錄最後一筆上傳日期
+    db.insert_convertible_bond_daily_upload_log(date)
 
     return success
 
