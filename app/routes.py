@@ -77,7 +77,7 @@ def sign_up():
 
 @main.route("/download")
 def download():
-    return render_template("download.html")
+    return render_template("download.html", hide = "hidden")
 
 # 確保上傳資料夾存在
 UPLOAD_FOLDER = "uploads"
@@ -149,6 +149,7 @@ def upload_file():
 @main.route("/download_ConvertibleBondDaily", methods = ["GET"])
 def download_ConvertibleBondDaily():
     table = ""
+    hide = "hidden"
     # 參數
     startDate = request.args.get('startDate')  # 格式: YYYY-MM-DD
     endDate = request.args.get('endDate')      # 格式: YYYY-MM-DD
@@ -168,7 +169,9 @@ def download_ConvertibleBondDaily():
 
     if method == 'search':
         table = db.query_convertible_bond(startDate, endDate, id, companyName)
-        return render_template("download.html", table = table, startDate = startDate, endDate=endDate, id=id, companyName=companyName)
+        if len(table)>0:
+            hide = ""
+        return render_template("download.html", table = table, startDate = startDate, endDate=endDate, id=id, companyName=companyName, hide=hide)
 
     elif method == 'download':
         
