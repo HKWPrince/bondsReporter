@@ -103,9 +103,9 @@ class DatabaseHandler:
                         float(row[6]) if pd.notnull(row[6]) else None,  # open_price
                         float(row[7]) if pd.notnull(row[7]) else None,  # high_price
                         float(row[8]) if pd.notnull(row[8]) else None,  # low_price
-                        int(row[9]) if pd.notnull(row[9]) else None,  # trade_count
-                        int(row[10]) if pd.notnull(row[10]) else None,  # unit_count
-                        int(row[11]) if pd.notnull(row[11]) else None,  # total_amount
+                        int(row[9].strip().replace(",","")) if pd.notnull(row[9]) else None,  # trade_count
+                        int(row[10].strip().replace(",","")) if pd.notnull(row[10]) else None,  # unit_count
+                        int(row[11].strip().replace(",","")) if pd.notnull(row[11]) else None,  # total_amount
                         float(row[12]) if pd.notnull(row[12]) else None,  # avg_price
                         float(row[13]) if pd.notnull(row[13]) else None,  # next_ref_price
                         float(row[14]) if pd.notnull(row[14]) else None,  # next_limit_up

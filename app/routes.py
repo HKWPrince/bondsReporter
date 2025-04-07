@@ -90,18 +90,20 @@ def allowed_file(filename):
 
 # **處理 excel 並存入 SQL Server**
 def process_excel(filename):
-    df_file = pd.read_excel(filename,header = None)
+    df_file = pd.read_csv(filename, encoding='cp950',skiprows=2, header=None)
     # 確認日期
-    date = df_file.iat[1,1]
-    date = date.replace('日期:','').replace('年','/').replace('月','/').replace('日','')
-    date_list = date.split('/')
-    year=str(int(date_list[0])+1911)
-    date = year+'-'+date_list[1]+'-'+date_list[2]
+    with open(filename, 'r', encoding='cp950') as f:
+        lines = f.readlines()
+        date = lines[1].split(',')[1].strip()
+        date = date.replace('日期:','').replace('年','/').replace('月','/').replace('日','')
+        date_list = date.split('/')
+        year=str(int(date_list[0])+1911)
+        date = year+'/'+date_list[1]+'/'+date_list[2]
 
-    df_file = df_file.iloc[4:,1:]
+    df_file = df_file.iloc[2:,1:]
     
 
-    # 儲存到資料庫
+    # 儲存到資料庫x
     db = DatabaseHandler()
 
     # 確認是否重複上傳
