@@ -308,7 +308,21 @@ class DatabaseHandler:
             return None
         
         sql_query = """
-                    SELECT Top(30) 
+                   Select 
+        (Case
+                        When c.[Num] > 0 Then 'Exist'
+                        Else 'Not Exist'
+                    End) as 'DataStatus'
+        ,(Case
+                        When c.[Num] > 0 Then '"badge badge-sm bg-gradient-success"'
+                        Else '"badge badge-sm bg-gradient-secondary"'
+                    End) as 'DataStatus_Class'
+        ,CONVERT(varchar,(CONVERT(float,c.[Num])/330*100))+'%' as 'percentage'
+        ,CONVERT(varchar,(CONVERT(float,c.[Num])/330*100)) as 'percentage_class'
+        ,CONVERT(varchar,c.[Num]) as 'Num_String'
+        ,c.*
+From(
+SELECT Top(30) 
                     a.[Date]
                     ,(Case
                         When a.[Day] = '1' Then '(Mon)'
@@ -316,8 +330,11 @@ class DatabaseHandler:
                         When a.[Day] = '3' Then '(Wed)'
                         When a.[Day] = '4' Then '(Thu)'
                         When a.[Day] = '5' Then '(Fri)'
-                    End) as 'Day'
+                    End) as 'Day',
+                    'https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/'+Left(a.[Date],4)+'/'+Replace(LEFT(a.[Date],7),'-','')+'/RSta0113.'+Replace(a.[Date],'-','')+'-C.csv' as 'Url'
+                    -- https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/2025/202504/RSta0113.20250407-C.csv
                     ,ISNULL(b.num,0) as 'Num'
+                    ,'404' as 'Status_code'
                     FROM [ReportDb].[dbo].[Date] a
                     LEFT JOIN(
                         SELECT 
@@ -327,75 +344,84 @@ class DatabaseHandler:
                         WHERE [dataDate] <= GETDATE()
                         GROUP BY dataDate) b on a.[Date] =b.dataDate
                     Where a.[Day] <>  '0' and [Day] <> '6' and [Date] <= GETDATE()
-                    ORDER BY [Date] DESC
+                    ORDER BY [Date] DESC) c
                     """ 
         try:
             
-            df = pd.read_sql(sql_query,self.conn)
-            result = ""
-            for i in range(0,len(df)):
-                if (df.iloc[i]["Num"]== 0):
-                    # 狀態符號
-                    result = result + """
-                                <tr>
-                                    <td>
-                                    <div class="align-middle text-center px-2 py-1">
-                                        <div>
-                                        <span class="badge badge-sm bg-gradient-secondary">Not Exist</span>
-                                        </div>
-                                    </div>
-                                    </td>
-                                    """
-                else:
-                    result = result+"""
-                                <tr>
-                                    <td>
-                                    <div class="align-middle text-center px-2 py-1">
-                                        <div>
-                                        <span class="badge badge-sm bg-gradient-success">Exist</span>
-                                        </div>
-                                    </div>
-                                    </td>
-                                    """
-                #日期 
-                result = result + """
-                                    <td>
-                                    <div class="align-middle text-center text-s">
-                                        <span class="text-xs font-weight-bold">""" + str(df.iloc[i]["Date"]) + """</span>
-                                    </div>
-                                    </td>
-                                    """
-                # 星期
-                result = result + """
-                                    <td>
-                                    <div class="align-middle text-center text-s">
-                                        <span class="text-xs font-weight-bold">"""+ df.iloc[i]["Day"] + """</span>
-                                    </div>
-                                    </td>
-                                    """
-                # 按鈕
-                result = result + """
-                                    <td class="align-middle text-center text-sm">
-                                    <a class="btn btn-outline-primary btn-sm mb-0" onclick="uploadFile()">Upload</a>
-                                    </td>
-                                    """
-                # 數量
-                result = result + """
-                                    <td class="align-middle">
-                                    <div class="progress-wrapper w-75 mx-auto">
-                                        <div class="progress-info">
-                                        <div class="progress-percentage">
-                                            <span class="text-xs font-weight-bold">"""+ str(df.iloc[i]["Num"]/330*100) +"""%</span>
-                                        </div>
-                                        </div>
-                                        <div class="progress">
-                                        <div class="progress-bar bg-gradient-info" style="width:"""+ str(df.iloc[i]["Num"]/330*100)  +"""%" role="progressbar" aria-valuenow=" """+ str(df.iloc[i]["Num"])+""""
-                                            aria-valuemin="0" aria-valuemax="330"></div>
-                                        </div>
-                                    </div>
-                                    </td>
-                                </tr>
-                        """
+            df = pd.read_sql(sql_query, self.conn)
+            result = df.to_dict(orient="records")
+            # result = ""
+            # for i in range(0,len(df)):
+            #     if (df.iloc[i]["Num"]== 0):
+            #         # 狀態符號
+            #         result = result + """
+            #                     <tr>
+            #                         <td>
+            #                         <div class="align-middle text-center px-2 py-1">
+            #                             <div>
+            #                             <span class="badge badge-sm bg-gradient-secondary">Not Exist</span>
+            #                             </div>
+            #                         </div>
+            #                         </td>
+            #                         """
+            #     else:
+            #         result = result+"""
+            #                     <tr>
+            #                         <td>
+            #                         <div class="align-middle text-center px-2 py-1">
+            #                             <div>
+            #                             <span class="badge badge-sm bg-gradient-success">Exist</span>
+            #                             </div>
+            #                         </div>
+            #                         </td>
+            #                         """
+            #     #日期 
+            #     result = result + """
+            #                         <td>
+            #                         <div class="align-middle text-center text-s">
+            #                             <span class="text-xs font-weight-bold">""" + str(df.iloc[i]["Date"]) + """</span>
+            #                         </div>
+            #                         </td>
+            #                         """
+            #     # 星期
+            #     result = result + """
+            #                         <td>
+            #                         <div class="align-middle text-center text-s">
+            #                             <span class="text-xs font-weight-bold">"""+ df.iloc[i]["Day"] + """</span>
+            #                         </div>
+            #                         </td>
+            #                         """
+            #     # 數量
+            #     result = result + """
+            #                         <td class="align-middle">
+            #                         <div class="progress-wrapper w-75 mx-auto">
+            #                             <div class="progress-info">
+            #                             <div class="progress-percentage">
+            #                                 <span class="text-xs font-weight-bold">"""+ str(df.iloc[i]["Num"]/330*100) +"""%</span>
+            #                             </div>
+            #                             </div>
+            #                             <div class="progress">
+            #                             <div class="progress-bar bg-gradient-info" style="width:"""+ str(df.iloc[i]["Num"]/330*100)  +"""%" 
+            #                                   role="progressbar" aria-valuenow=" """+ str(df.iloc[i]["Num"])+""""
+            #                                 aria-valuemin="0" aria-valuemax="330"></div>
+            #                             </div>
+            #                         </div>
+            #                         </td>
+                                    
+            #                         """
+            #     # 按鈕
+            #     result = result + """
+            #                         <td class="align-middle text-center text-sm">
+            #                         <a class="btn btn-outline-primary btn-sm mb-0" onclick="uploadFile()">Upload</a>
+            #                         </td>
+            #             """
+            #     # 按鈕
+            #     result = result + """
+            #                         <td class="align-middle text-center text-sm">
+            #                         <a class="btn btn-outline-primary btn-sm mb-0" onclick="uploadFile()">Upload</a>
+            #                         </td>
+            #                     </tr>
+            #             """
             return result
         except Exception as e:
             print(f"Database query error: {e}")

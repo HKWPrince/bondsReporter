@@ -39,51 +39,51 @@
 
 <body class="g-sidenav-show  bg-gray-200">
   <script>
-  // function applySavedSettings() {
-  //   console.log("applying")
-  //   let sidebarColorValue = getCookie("sidebarColor");
-  //   let sidebarTypeValue = getCookie("sidebarType");
-  //   let darkModeValue = getCookie("darkMode");
-  //   if (sidebarColorValue) {
-  //       sidebarColor(sidebarColorValue);
-  //   }
-  //   if (sidebarTypeValue) {
-  //       sidebarType(sidebarTypeValue);
-  //   }
-  //   if (darkModeValue) {
-  //     darkMode(darkModeValue);
-  // }
-  // }
+    // function applySavedSettings() {
+    //   console.log("applying")
+    //   let sidebarColorValue = getCookie("sidebarColor");
+    //   let sidebarTypeValue = getCookie("sidebarType");
+    //   let darkModeValue = getCookie("darkMode");
+    //   if (sidebarColorValue) {
+    //       sidebarColor(sidebarColorValue);
+    //   }
+    //   if (sidebarTypeValue) {
+    //       sidebarType(sidebarTypeValue);
+    //   }
+    //   if (darkModeValue) {
+    //     darkMode(darkModeValue);
+    // }
+    // }
 
-  // function setCookie(name, value, days) {
-  //   console.log("setitng")
-  //   let expires = "";
-  //   if (days) {
-  //       let date = new Date();
-  //       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-  //       expires = "; expires=" + date.toUTCString();
-  //   }
-  //   document.cookie = name + "=" + value + "; path=/" + expires;
-  // }
+    // function setCookie(name, value, days) {
+    //   console.log("setitng")
+    //   let expires = "";
+    //   if (days) {
+    //       let date = new Date();
+    //       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    //       expires = "; expires=" + date.toUTCString();
+    //   }
+    //   document.cookie = name + "=" + value + "; path=/" + expires;
+    // }
 
-  // function getCookie(name) {
-  //   console.log("Getting")
-  //   let nameEQ = name + "=";
-  //   let cookies = document.cookie.split(';');
-  //   for (let i = 0; i < cookies.length; i++) {
-  //       let c = cookies[i].trim();
-  //       if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-  //   }
-  //   return null;
-  // }
-  //   alert("Sidebar Color: " + getCookie("sidebarColor") + "\nSidebar Type: " + getCookie("sidebarType"));
+    // function getCookie(name) {
+    //   console.log("Getting")
+    //   let nameEQ = name + "=";
+    //   let cookies = document.cookie.split(';');
+    //   for (let i = 0; i < cookies.length; i++) {
+    //       let c = cookies[i].trim();
+    //       if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    //   }
+    //   return null;
+    // }
+    //   alert("Sidebar Color: " + getCookie("sidebarColor") + "\nSidebar Type: " + getCookie("sidebarType"));
 
-  //   // ✅ 頁面載入時自動套用 UI 設定
-  //   window.onload = applySavedSettings;
+    //   // ✅ 頁面載入時自動套用 UI 設定
+    //   window.onload = applySavedSettings;
 
     // for 資料狀態按鈕
     function uploadFile() {
-    document.getElementById("btn_uplod").click();
+      document.getElementById("btn_uplod").click();
     }
   </script>
   <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2"
@@ -167,12 +167,10 @@
     </div>
     <div class="sidenav-footer position-absolute w-100 bottom-0 ">
       <div class="mx-3">
-        <a class="btn btn-outline-dark mt-4 w-100"
-          target="_blank"
-          href="https://www.tpex.org.tw/zh-tw/index.html"
+        <a class="btn btn-outline-dark mt-4 w-100" target="_blank" href="https://www.tpex.org.tw/zh-tw/index.html"
           type="button">Taipei Exchange</a>
-        <a class="btn bg-gradient-dark w-100"
-          href="https://www.tpex.org.tw/zh-tw/bond/info/statistics-cb/day.html" target="_blank" type="button">Download Doc</a>
+        <a class="btn bg-gradient-dark w-100" href="https://www.tpex.org.tw/zh-tw/bond/info/statistics-cb/day.html"
+          target="_blank" type="button">Download Doc</a>
       </div>
     </div>
   </aside>
@@ -219,8 +217,8 @@
               </a>
             </li>
             <li class="nav-item dropdown pe-3 d-flex align-items-center disabled">
-              <a href="javascript:;" class="nav-link text-body p-0 disabled" id="dropdownMenuButton" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a href="javascript:;" class="nav-link text-body p-0 disabled" id="dropdownMenuButton"
+                data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="material-symbols-rounded">notifications</i>
               </a>
               <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
@@ -392,7 +390,7 @@
             </div>
           </div>
         </div>
-        
+
       </div>
       <!-- Upload File -->
       <div class="row">
@@ -409,39 +407,42 @@
                 </div>
                 <div class="col-md-12 mb-lg-0 mb-4 align-items-center">
                   {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                      {% if messages[0].startswith("Error") %}
-                        <div class="alert alert-danger alert-dismissible text-white" role="alert">
-                          <span class="text-sm">{{ messages[0] }} </span>
-                          <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                      {% endif %}
-                      {% if messages[0].startswith("Success") %}
-                        <div class="alert alert-success alert-dismissible text-white" role="alert">
-                          <span class="text-sm">{{ messages[0] }} </span>
-                          <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                      {% endif %}
-                    {% endif %}
+                  {% if messages %}
+                  {% if messages[0].startswith("Error") %}
+                  <div class="alert alert-danger alert-dismissible text-white" role="alert">
+                    <span class="text-sm">{{ messages[0] }} </span>
+                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert"
+                      aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  {% endif %}
+                  {% if messages[0].startswith("Success") %}
+                  <div class="alert alert-success alert-dismissible text-white" role="alert">
+                    <span class="text-sm">{{ messages[0] }} </span>
+                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert"
+                      aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  {% endif %}
+                  {% endif %}
                   {% endwith %}
                 </div>
                 <form action="{{ url_for('main.upload_file') }}" method="post" enctype="multipart/form-data">
-                  <div class="input-group input-group-outline align-items-center">                   
-                      <input id = "btn_uplod" class="form-control" type="file" name="file" id="formFile">
+                  <div class="input-group input-group-outline align-items-center">
+                    <input id="btn_uplod" class="form-control" type="file" name="file" id="formFile">
                   </div>
                   <hr class="dark horizontal">
                   <div class="col-md-12 mb-lg-0 mb-4">
-                    <button type="submit" class="btn bg-gradient-dark mb-0"><i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Upload File</button>
+                    <button type="submit" class="btn bg-gradient-dark mb-0"><i
+                        class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Upload File</button>
                   </div>
                 </form>
               </div>
             </div>
             <div class="card-body p-3">
-              
+
             </div>
           </div>
         </div>
@@ -515,7 +516,7 @@
                     <h6>Data</h6>
                     <p class="text-sm mb-0">
                       <i class="fa fa-check text-info" aria-hidden="true"></i>
-                      <span class="font-weight-bold ms-1">The data status of 30 days</span> 
+                      <span class="font-weight-bold ms-1">The data status of 30 days</span>
                     </p>
                   </div>
                   <!-- <div class="col-lg-6 col-5 my-auto text-end">
@@ -539,14 +540,60 @@
                     <thead>
                       <tr>
                         <th class="text-center text-secondary text-xxs font-weight-bolder opacity-7">Data Status</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Day</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Upload</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date
+                        </th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Day
+                        </th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                          Quantity</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                          Upload</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                          Insert</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {{ recent_status | safe }}
+                      {% for row in recent_status %}
+                      <tr>
+                        <td>
+                          <div class="align-middle text-center px-2 py-1">
+                            <div>
+                              <span class={{row["DataStatus_Class"]|safe}}>{{row["DataStatus"]|safe}}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="align-middle text-center text-s">
+                            <span class="text-xs font-weight-bold"> {{row["Date"]}}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="align-middle text-center text-s">
+                            <span class="text-xs font-weight-bold">{{row["Day"]}}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle">
+                          <div class="progress-wrapper w-75 mx-auto">
+                            <div class="progress-info">
+                              <div class="progress-percentage">
+                                <span class="text-xs font-weight-bold">{{row["percentage"]}}</span>
+                              </div>
+                            </div>
+                            <div class="progress">
+                              <div class="progress-bar bg-gradient-info" style="width:{{row["percentage_class"]}}%"
+                                role="progressbar" aria-valuenow="{{row["Num_String"]}}"aria-valuemin="0" aria-valuemax="330">
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="align-middle text-center text-sm">
+                          <a class="btn btn-outline-primary btn-sm mb-0" onclick="uploadFile()">Upload</a>
+                        </td>
+                        <td class="align-middle text-center text-sm">
+                          <a class="btn btn-outline-primary btn-sm mb-0" onclick="uploadFile()">Insert</a>
+                        </td>
+                      </tr>
+                      {% endfor %}
                     </tbody>
                   </table>
                 </div>
@@ -570,7 +617,8 @@
                     </span>
                     <div class="timeline-content">
                       <h6 class="text-dark text-sm font-weight-bold mb-0">Upload csv File 2.0</h6>
-                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Now you can only upload file via csv file type!! </p>
+                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Now you can only upload file via csv
+                        file type!! </p>
                     </div>
                   </div>
                   <div class="timeline-block mb-3">
@@ -579,7 +627,8 @@
                     </span>
                     <div class="timeline-content">
                       <h6 class="text-dark text-sm font-weight-bold mb-0">Side Bar Buttoon 2.0</h6>
-                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">[Taipei Exchange] and [Download Doc] buttons will open in a new tab window! </p>
+                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">[Taipei Exchange] and [Download Doc]
+                        buttons will open in a new tab window! </p>
                     </div>
                   </div>
                   <div class="timeline-block mb-3">
@@ -587,7 +636,8 @@
                       <i class="material-symbols-rounded text-danger text-gradient">rocket_launch</i>
                     </span>
                     <div class="timeline-content">
-                      <h6 class="text-dark text-sm font-weight-bold mb-0">Search Before Download 2.0 - Optimization Search speed</h6>
+                      <h6 class="text-dark text-sm font-weight-bold mb-0">Search Before Download 2.0 - Optimization
+                        Search speed</h6>
                       <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Show table immediately !! </p>
                     </div>
                   </div>
@@ -597,7 +647,8 @@
                     </span>
                     <div class="timeline-content">
                       <h6 class="text-dark text-sm font-weight-bold mb-0">Search Before Download</h6>
-                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">In Download Page<br>There is a new function you can show the results you search in table !! </p>
+                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">In Download Page<br>There is a new
+                        function you can show the results you search in table !! </p>
                     </div>
                   </div>
                   <div class="timeline-block mb-3">
@@ -606,7 +657,8 @@
                     </span>
                     <div class="timeline-content">
                       <h6 class="text-dark text-sm font-weight-bold mb-0">The Date of Latest Upload</h6>
-                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">The Latest Upload Date is showing above!!</p>
+                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">The Latest Upload Date is showing
+                        above!!</p>
                     </div>
                   </div>
                   <!-- <div class="timeline-block mb-3">
@@ -671,9 +723,10 @@
                   <a href="{{ url_for('main.home') }}" class="nav-link text-muted" target="_blank">BoundsReport</a>
                 </li>
                 <li class="nav-item">
-                  <a href="https://www.linkedin.com/in/kuo-wei-huang-827407203/" class="nav-link text-muted" target="_blank">About
+                  <a href="https://www.linkedin.com/in/kuo-wei-huang-827407203/" class="nav-link text-muted"
+                    target="_blank">About
                     Us</a>
-                <!-- </li>
+                  <!-- </li>
                 <li class="nav-item">
                   <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
                 </li>
@@ -766,9 +819,9 @@
             class="btn btn-dark mb-0 me-2" target="_blank">
             <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
           </a> -->
-        </div>
       </div>
     </div>
+  </div>
   </div>
   <!--   Core JS Files   -->
   <script src="./static/assets/js/core/popper.min.js"></script>
