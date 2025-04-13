@@ -96,7 +96,7 @@ def insert_convertible_bond_daily(filepath, date):
 
 
 sql_query = """
-            SELECT Top(10)
+            SELECT
             a.[Date]
                             , (Case
                                 When a.[Day] = '0' Then '(Sun)'
