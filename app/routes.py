@@ -4,15 +4,72 @@ import pandas as pd
 from app.dao import DatabaseHandler
 import time
 import datetime
+import requests
+import asyncio
+import aiohttp
+
 
 # 建立 Blueprint
 main = Blueprint("main", __name__)
+headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+
+# 確認Taipei Exchange 檔案狀態
+
+# 單一網址檢查邏輯
+async def fetch_status(session, element):
+    url = element['Url']
+    try:
+        async with session.get(url, timeout=5) as response:
+            content_type = response.headers.get('Content-Type', '')
+            status_code = response.status
+
+            if status_code == 200 and 'text/html' not in content_type:
+                element['Status_code'] = '200'
+                element['Show_download_btn'] = ''
+                element['Download_btn_class'] = 'success'
+            else:
+                element['Status_code'] = '404'
+                element['Show_download_btn'] = 'disabled'
+                element['Download_btn_class'] = 'Secondary'
+
+    except Exception:
+        element['Status_code'] = '404'
+        element['Show_download_btn'] = 'disabled'
+        element['Download_btn_class'] = 'Secondary'
+    
+    return element
+
+
+async def check_all_urls_async(data):
+    
+    connector = aiohttp.TCPConnector(limit=20, ssl=False)
+    async with aiohttp.ClientSession(headers=headers, connector=connector) as session:
+        
+        tasks = []
+        for element in data:
+            if element["Status_code"] == "Search":
+                tasks.append(fetch_status(session, element))
+            else:
+                # 用 asyncio.sleep(0) 佔位，直接回原物件
+                async def return_original(el=element): return el
+                tasks.append(return_original())
+
+        results = await asyncio.gather(*tasks)
+        return results
+
+def check_TaipeiExchange(data):
+    return asyncio.run(check_all_urls_async(data))
 
 # 查詢近30天資料狀態 
 def query_recent_status():
     db = DatabaseHandler()
     recent_status = db.query_recent_status()
+    # 確認Taipei Exchange 檔案狀態
+    recent_status = check_TaipeiExchange(recent_status)
     return recent_status
+
 # 查詢資料庫資料天數
 def get_dataDaysNum():
     db = DatabaseHandler()
@@ -146,6 +203,36 @@ def upload_file():
     else:
         flash("Error:Invalid file format. Please upload a Excel file!")
         return redirect(url_for("main.home"))
+
+# **自動下載並上傳檔案**
+@main.route("/autoInsert", methods=["POST"])
+def autoInsert():
+    date = request.values['Date']
+    url = request.values['Url']
+    response = requests.get(url, headers=headers)
+    status_code = response.status_code
+    # 送出 GET 請求
+    fileName = date.replace("-","")+".csv"
+    # 檢查回應狀態
+    if response.status_code == 200 and response.headers['Content-Type'] != 'text/html':
+        # 將內容存成本地檔案
+        filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], fileName)
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+        if process_excel(filepath):
+            flash("Success: "+ fileName+ " File has been Download and Inserted successfully!")
+            return redirect(url_for("main.home"))
+        else:
+            flash("Error: "+ fileName+ "File hasn't been uploaded. Please check!")
+            return redirect(url_for("main.home"))
+        
+    elif response.headers['Content-Type'] == 'text/html':
+        flash("Error: Taipei Exchange doesn't provide "+ fileName+ " File")
+    else:
+        flash("Error: "+ fileName+ " File hasn't been downloed")
+    
+    return redirect(url_for("main.home"))
+
     
 # **下載檔案**
 @main.route("/download_ConvertibleBondDaily", methods = ["GET"])
