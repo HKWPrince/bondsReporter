@@ -4782,9 +4782,9 @@ fieldset:disabled .btn {
 
 .nav-tabs .nav-item.show .nav-link,
 .nav-tabs .nav-link.active {
-    color: var(--bs-nav-tabs-link-active-color);
-    background-color: var(--bs-navbar-active-color);
-    border-color: var(--bs-nav-tabs-link-active-border-color)
+    color: var(--bs-gray-300);
+    background-image: linear-gradient(195deg, #ec407a, #d81b60);
+    /* border-color: var(--bs-nav-tabs-link-active-border-color) */
 }
 
 

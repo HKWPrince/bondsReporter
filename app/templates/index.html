@@ -554,7 +554,7 @@
                                 <ul class="nav nav-tabs px-3" id="monthTabs" role="tablist">
                                     {% for m in months_sorted %}
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link {% if loop.first %}active {% endif %}"
+                                        <a class="nav-link {% if loop.first %}active {% endif %}"
                                                 id="tab-{{ m|replace('-', '') }}"
                                                 data-bs-toggle="tab"
                                                 data-bs-target="#month-{{ m|replace('-', '') }}"
@@ -563,7 +563,7 @@
                                                 aria-controls="month-{{ m|replace('-', '') }}"
                                                 aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
                                             {{ m }}
-                                        </button>
+                                    </a>
                                     </li>
                                     {% endfor %}
                                 </ul>
