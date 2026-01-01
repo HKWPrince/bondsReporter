@@ -63,12 +63,19 @@ def check_TaipeiExchange(data):
     return asyncio.run(check_all_urls_async(data))
 
 # 查詢近30天資料狀態 
-def query_recent_status():
+def query_recent_status(filter_year=None):
     db = DatabaseHandler()
-    recent_status = db.query_recent_status()
+    recent_status = db.query_recent_status(filter_year)
     # 確認Taipei Exchange 檔案狀態
     recent_status = check_TaipeiExchange(recent_status)
     return recent_status
+
+# 查詢資料庫資料年份
+def get_DataYears():
+    db = DatabaseHandler()
+    dataYears = db.get_DataYears()
+    return dataYears    
+
 
 # 查詢資料庫資料天數
 def get_dataDaysNum():
@@ -89,12 +96,33 @@ def get_LatestUpload():
 
 @main.route("/")
 def home():
-    recent_status=query_recent_status()
+    # 前端年份篩選
+    year = request.args.get("year")  # e.g. "2025" or None
+    # 取得所有有資料的年份
+    years = get_DataYears()
+    # 預設選最新一年
+    # year=all 或沒資料就不過濾
+    if year and year != "all":
+        recent_status = query_recent_status(year)
+    else:
+        recent_status = query_recent_status()
+    selected_year = year
+
     dataDaysNum = get_dataDaysNum()
     tradingDate = get_TradingDate()
     date = datetime.datetime.now().strftime("%Y-%m-%d(%A)")
     latestUpload = get_LatestUpload()
-    return render_template("index.html", recent_status = recent_status, dataDaysNum=dataDaysNum , tradingDate= tradingDate, date=date , latestUpload=latestUpload)
+
+    return render_template(
+        "index.html",
+        recent_status=recent_status,
+        years=years,
+        selected_year=selected_year,
+        dataDaysNum=dataDaysNum,
+        tradingDate=tradingDate,
+        date=date,
+        latestUpload=latestUpload,
+    )
 
 @main.route("/dashboard")
 def dashboard():
@@ -215,16 +243,22 @@ def autoInsert():
     fileName = date.replace("-","")+".csv"
     # 檢查回應狀態
     if response.status_code == 200 and response.headers['Content-Type'] != 'text/html':
-        # 將內容存成本地檔案
         filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], fileName)
-        with open(filepath, "wb") as f:
-            f.write(response.content)
-        if process_excel(filepath):
-            flash("Success: "+ fileName+ " File has been Download and Inserted successfully!")
-            return redirect(url_for("main.home"))
-        else:
-            flash("Error: "+ fileName+ "File hasn't been uploaded. Please check!")
-            return redirect(url_for("main.home"))
+        try:
+            with open(filepath, "wb") as f:
+                f.write(response.content)
+
+            if process_excel(filepath):
+                flash(f"Success: {fileName} File has been Downloaded and Inserted successfully!")
+            else:
+                flash(f"Error: {fileName} File hasn't been uploaded. Please check!")
+
+        finally:
+            # 確保使用完後刪除暫存檔案
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+        return redirect(url_for("main.home"))
         
     elif response.headers['Content-Type'] == 'text/html':
         flash("Error: Taipei Exchange doesn't provide "+ fileName+ " File")
@@ -274,4 +308,3 @@ def download_ConvertibleBondDaily():
 
         # 回傳 Excel 檔案給用戶下載
         return send_file(filename, as_attachment=True)
-

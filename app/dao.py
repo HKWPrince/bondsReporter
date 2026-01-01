@@ -302,13 +302,17 @@ class DatabaseHandler:
             self.conn.close()
 
     #"""查詢近30天資料狀況"""
-    def query_recent_status(self):
+    def query_recent_status(self,filter_year=None):
         self.connect()
         if not self.conn:
             return None
         
+        Year = '%'
+        if filter_year != None:
+            Year = filter_year + Year
+
         sql_query = """
-                        Select
+        Select
         (Case
                         When c.[Num] > 0 Then 'Exist'
                         Else 'Not Exist'
@@ -328,35 +332,36 @@ class DatabaseHandler:
                         When c.[Num] > 0 Then 'Secondary'
                         Else 'success'
                     End) as 'Download_btn_class'
-    From(
-SELECT Top(30)
-            a.[Date]
-                    , (Case
-                        When a.[Day] = '0' Then '(Sun)'
-                                When a.[Day] = '1' Then '(Mon)'
-                                When a.[Day] = '2' Then '(Tus)'
-                                When a.[Day] = '3' Then '(Wed)'
-                                When a.[Day] = '4' Then '(Thu)'
-                                When a.[Day] = '5' Then '(Fri)'
-                                When a.[Day] = '6' Then '(Sat)'
-                    End) as 'Day',
-                'https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/'+Left(a.[Date],4)+'/'+Replace(LEFT(a.[Date],7),'-','')+'/RSta0113.'+Replace(a.[Date],'-','')+'-C.csv' as 'Url'
-                    -- https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/2025/202504/RSta0113.20250407-C.csv
-                    , ISNULL(b.num,0) as 'Num'
-                    , (Case
-                        When b.[Num] > 0 Then '200'
-                        Else 'Search'
-                    End) as 'Status_code'
-        FROM [ReportDb].[dbo].[Date] a
-            LEFT JOIN(
-                        SELECT
-                dataDate,
-                COUNT(id) as 'num'
-            From ConvertibleBondDaily
-            WHERE [dataDate] <= GETDATE()
-            GROUP BY dataDate) b on a.[Date] =b.dataDate
-        Where [Date] <= GETDATE()
-        ORDER BY [Date] DESC) c
+        From(
+                SELECT Top(365)
+                            a.[Date]
+                                    , (Case
+                                        When a.[Day] = '0' Then '(Sun)'
+                                                When a.[Day] = '1' Then '(Mon)'
+                                                When a.[Day] = '2' Then '(Tus)'
+                                                When a.[Day] = '3' Then '(Wed)'
+                                                When a.[Day] = '4' Then '(Thu)'
+                                                When a.[Day] = '5' Then '(Fri)'
+                                                When a.[Day] = '6' Then '(Sat)'
+                                    End) as 'Day',
+                                'https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/'+Left(a.[Date],4)+'/'+Replace(LEFT(a.[Date],7),'-','')+'/RSta0113.'+Replace(a.[Date],'-','')+'-C.csv' as 'Url'
+                                    -- https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/2025/202504/RSta0113.20250407-C.csv
+                                    , ISNULL(b.num,0) as 'Num'
+                                    , (Case
+                                        When b.[Num] > 0 Then '200'
+                                        Else 'Search'
+                                    End) as 'Status_code'
+                        FROM [ReportDb].[dbo].[Date] a
+                            LEFT JOIN(
+                                        SELECT
+                                dataDate,
+                                COUNT(id) as 'num'
+                            From ConvertibleBondDaily
+                            WHERE [dataDate] <= GETDATE()
+                            GROUP BY dataDate) b on a.[Date] =b.dataDate
+                        Where [Date] <= GETDATE()
+                        ORDER BY [Date] DESC) c
+                        where c.[Date] like '""" + Year + """'
                     """ 
         try:
             
@@ -435,10 +440,33 @@ SELECT Top(30)
                         Where [Day] <>  '0' and [Day] <> '6' and [Date] <= GETDATE()
                         ORDER BY [Date] DESC
                         """
-
             df = pd.read_sql(sql_query, self.conn)
             result = df["Date"][0]
             return str(result)
+        
+        except Exception as e:
+            print(f"Database query error: {e}")
+            return None
+        finally:
+            self.conn.close()
+
+    # 查詢資料庫資料年份
+    def get_DataYears(self):
+        self.connect()
+        if not self.conn:
+            return None
+        
+        try:
+            sql_query = """                                                
+                        SELECT 
+                        Distinct LEFT(Date,4)  AS Year
+                        FROM Date
+                        Where [Date] <= GETDATE()
+                        ORDER BY [Year] DESC
+                        """
+            df = pd.read_sql(sql_query, self.conn)
+            result = df["Year"].tolist()
+            return result
         
         except Exception as e:
             print(f"Database query error: {e}")
