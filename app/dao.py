@@ -359,9 +359,8 @@ class DatabaseHandler:
                             From ConvertibleBondDaily
                             WHERE [dataDate] <= GETDATE()
                             GROUP BY dataDate) b on a.[Date] =b.dataDate
-                        Where [Date] <= GETDATE()
+                        Where [Date] <= GETDATE() and [Date] like '""" + Year + """'
                         ORDER BY [Date] DESC) c
-                        where c.[Date] like '""" + Year + """'
                     """ 
         try:
             
