@@ -1,83 +1,71 @@
 import pyodbc as sql
 import pandas as pd
+import os
+
 
 class DatabaseHandler:
-    def __init__(self, server='localhost,1433', database='ReportDb', username='sa', password='Password123'):
-        self.connection_string = f'''
-            DRIVER={{ODBC Driver 18 for SQL Server}};
-            SERVER={server};
-            DATABASE={database};
-            UID={username};
-            PWD={password};
-            Encrypt=yes;
-            TrustServerCertificate=yes;
-        '''
+    def __init__(self):
+        self.connection_string = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER={os.getenv('DB_SERVER', 'localhost,1433')};"
+            f"DATABASE={os.getenv('DB_NAME', 'ReportDb')};"
+            f"UID={os.getenv('DB_USER', 'sa')};"
+            f"PWD={os.getenv('DB_PASSWORD', 'Password123')};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=yes;"
+        )
         self.conn = None
 
-    #"""建立資料庫連線"""
     def connect(self):
         try:
             self.conn = sql.connect(self.connection_string, timeout=0)
         except Exception as e:
             print(f"Database connection failed: {e}")
-    
-    #"""關閉資料庫連線"""
+            self.conn = None
+
     def close(self):
         if self.conn:
             self.conn.close()
+            self.conn = None
 
     # 確認資料是否重複上傳
-    def check_convertible_bond_daily_exist(self,date):
+    def check_date_exists(self, date):
+        self.connect()
         if not self.conn:
-            self.connect()
-        else:
-            return False  # 無法連接時，直接返回
-        
-        SQL_STATEMENT = """
-                        SELECT 
-                        COUNT(id) as 'Num'
-                        FROM ConvertibleBondDaily
-                        WHERE dataDate = 
-                        """
-        SQL_STATEMENT += "'"+date+"'"
+            return False
         try:
-            df = pd.read_sql(SQL_STATEMENT, self.conn)
-            if ((df["Num"][0])!=0):
-                return True
-                
-            else:
-                return False
-        
+            df = pd.read_sql(
+                "SELECT COUNT(id) AS Num FROM ConvertibleBondDaily WHERE dataDate = ?",
+                self.conn,
+                params=[date],
+            )
+            return int(df["Num"][0]) > 0
         except Exception as e:
-            print(f"Database check_convertible_bond_daily_exist error: {e}")
-            return None
+            print(f"check_date_exists error: {e}")
+            return False
         finally:
-            self.conn.close()
+            self.close()
 
-    #"""加入資料到 ConvertibleBondDaily 資料表"""
-    def insert_convertible_bond_daily_upload_log(self, data):
-        if self.conn is None or self.conn.closed:
-            self.connect() # 無法連接時，直接返回
-
-        SQL_STATEMENT = """
-                        INSERT INTO ConvertibleBondDaily_upload_log
-                        VALUES ( '"""+data+"""',GETDATE()) 
-                        """
+    def insert_upload_log(self, date):
+        self.connect()
+        if not self.conn:
+            return
         try:
             cursor = self.conn.cursor()
-            cursor.execute(SQL_STATEMENT)
+            cursor.execute(
+                "INSERT INTO ConvertibleBondDaily_upload_log VALUES (?, GETDATE())",
+                (date,),
+            )
             self.conn.commit()
         except Exception as e:
-            print(f"Insert convertible_bond_daily_upload_log error: {e}")
+            print(f"insert_upload_log error: {e}")
         finally:
-                cursor.close()
-                self.conn.close()
+            self.close()
 
-
-    #"""加入資料到 ConvertibleBondDaily 資料表"""
     def insert_convertible_bond_daily(self, data, date):
-        if self.conn is None or self.conn.closed:
-            self.connect() # 無法連接時，直接返回
+        self.connect()
+        if not self.conn:
+            return False
 
         SQL_STATEMENT = """
                         INSERT INTO ConvertibleBondDaily 
@@ -117,358 +105,205 @@ class DatabaseHandler:
                         print(f"Row data: {row}")
                         print(f"Error: {str(e)}")
                         return False
+            return True
         except Exception as e:
-            print(f"Database insert error: {e}")
+            print(f"insert_convertible_bond_daily error: {e}")
             return False
         finally:
-                cursor.close()
-                self.conn.close()
-                return True
+            self.close()
 
-    
-    #"""查詢符合條件的可轉債交易數據，並匯出Excel file"""
-    def download_convertible_bond(self, startDate, endDate, id=None, companyName=None):
+    def download_convertible_bond(self, start_date, end_date, bond_id=None, company_name=None):
         self.connect()
         if not self.conn:
             return None
 
         sql_query = """
-        SELECT 
-            dataDate as '日期', 
-            id as '代號', 
-            name as '名稱', 
-            trade_type as '交易', 
-            closing_price as '收市', 
-            change_price as '漲跌', 
-            open_price as '開市', 
-            high_price as '最高', 
-            low_price as '最低',
-            trade_count as '筆數', 
-            unit_count as '單位', 
-            total_amount as '金額', 
-            avg_price as '均價', 
-            next_ref_price as '明日參價', 
-            next_limit_up as '明日漲停', 
-            next_limit_down as '明日跌停'
-        FROM ConvertibleBondDaily
-        WHERE dataDate BETWEEN """
-        
-        sql_query += "'"+startDate+"'" + " AND " + "'" +endDate+ "'"
+            SELECT
+                dataDate AS '日期', id AS '代號', name AS '名稱', trade_type AS '交易',
+                closing_price AS '收市', change_price AS '漲跌', open_price AS '開市',
+                high_price AS '最高', low_price AS '最低', trade_count AS '筆數',
+                unit_count AS '單位', total_amount AS '金額', avg_price AS '均價',
+                next_ref_price AS '明日參價', next_limit_up AS '明日漲停', next_limit_down AS '明日跌停'
+            FROM ConvertibleBondDaily
+            WHERE dataDate BETWEEN ? AND ?
+        """
+        params = [start_date, end_date]
 
-        # 如果有輸入公司 ID
-        if id:
-            sql_query += " AND id = " + "'" + id + "'"
+        if bond_id:
+            sql_query += " AND id = ?"
+            params.append(bond_id)
+        if company_name:
+            sql_query += " AND name LIKE ?"
+            params.append(f"%{company_name}%")
 
-        # 如果有輸入公司名稱
-        if companyName:
-            sql_query += " AND name LIKE " + "N'%" + companyName + "%'"
+        sql_query += " ORDER BY id, dataDate ASC"
 
         try:
-            sql_query = sql_query + " ORDER By id , dataDate Asc "
-
-            df = pd.read_sql(sql_query, self.conn)
-
-            if df is None or df.empty:
+            df = pd.read_sql(sql_query, self.conn, params=params)
+            if df.empty:
                 return None
-
-            # 儲存 Excel 檔案
-            filename = "ConvertibleBondReport"+startDate+"_"+endDate+".xlsx"
-            df.to_excel("./app/file/"+filename, index=False)
-
+            filename = f"ConvertibleBondReport{start_date}_{end_date}.xlsx"
+            os.makedirs("app/file", exist_ok=True)
+            df.to_excel(os.path.join("app/file", filename), index=False)
             return filename
-        
         except Exception as e:
-            print(f"Database query error: {e}")
+            print(f"download_convertible_bond error: {e}")
             return None
         finally:
-            self.conn.close()
-    
-    #"""查詢符合條件的可轉債交易數據，並回傳至前端"""
-    def query_convertible_bond(self, startDate, endDate, id=None, companyName=None):
+            self.close()
+
+    def query_convertible_bond(self, start_date, end_date, bond_id=None, company_name=None):
         self.connect()
         if not self.conn:
-            return None
+            return []
 
         sql_query = """
-            SELECT 
-            dataDate, 
-            id, 
-            name, 
-            trade_type, 
-            closing_price, 
-            change_price, 
-            open_price, 
-            high_price, 
-            low_price,
-            trade_count, 
-            unit_count, 
-            total_amount, 
-            avg_price, 
-            next_ref_price, 
-            next_limit_up, 
-            next_limit_down
-        FROM ConvertibleBondDaily
-        WHERE dataDate BETWEEN """
-        
-        sql_query += "'"+startDate+"'" + " AND " + "'" +endDate+ "'"
+            SELECT
+                dataDate, id, name, trade_type, closing_price, change_price, open_price,
+                high_price, low_price, trade_count, unit_count, total_amount, avg_price,
+                next_ref_price, next_limit_up, next_limit_down
+            FROM ConvertibleBondDaily
+            WHERE dataDate BETWEEN ? AND ?
+        """
+        params = [start_date, end_date]
 
-        # 如果有輸入公司 ID
-        if id:
-            sql_query += " AND id = " + "'" + id + "'"
+        if bond_id:
+            sql_query += " AND id = ?"
+            params.append(bond_id)
+        if company_name:
+            sql_query += " AND name LIKE ?"
+            params.append(f"%{company_name}%")
 
-        # 如果有輸入公司名稱
-        if companyName:
-            sql_query += " AND name LIKE " + "N'%" + companyName + "%'"
-    
-        result = """<div class="row">
-                <div class="col-md-12 mb-lg-0 mb-4">
-                    <div class="card">
-                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="row">
-                                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                                        <h6 class="text-white text-capitalize ps-3">Search Results</h6>
-                                    </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card-body px-0 pb-2">
-                            <div class="table-responsive">
-                                <table class="table align-items-center mb-0 table-hover border border-secondary border-start-0 border-end-0">
-                                    <thead>
-                                        <tr>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                日期</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                代號</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                名稱</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                交易</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                收市</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                漲跌</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                開市</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                最高</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                最低</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                筆數</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                單位</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                金額</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                均價</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                明日參價</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                明日漲停</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-s opacity-7">
-                                                明日跌停</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="table-light border border-secondary border-start-0 border-end-0">
-                                        """
+        sql_query += " ORDER BY id, dataDate ASC"
 
         try:
-            sql_query = sql_query + " ORDER By id , dataDate Asc "
-            df = pd.read_sql(sql_query, self.conn)
-            result = df.to_dict(orient="records")
-            return result
-        
+            df = pd.read_sql(sql_query, self.conn, params=params)
+            return df.to_dict(orient="records")
         except Exception as e:
-            print(f"Database query error: {e}")
-            return None
+            print(f"query_convertible_bond error: {e}")
+            return []
         finally:
-            self.conn.close()
+            self.close()
 
-    #"""查詢近30天資料狀況"""
-    def query_recent_status(self,filter_year=None):
+    def query_recent_status(self, filter_year=None):
         self.connect()
         if not self.conn:
-            return None
-        
-        Year = '%'
-        if filter_year != None:
-            Year = filter_year + Year
+            return []
+
+        year_pattern = (filter_year + '%') if filter_year else '%'
 
         sql_query = """
-        Select
-        (Case
-                        When c.[Num] > 0 Then 'Exist'
-                        Else 'Not Exist'
-                    End) as 'DataStatus'
-        , (Case
-                        When c.[Num] > 0 Then '"badge badge-sm bg-gradient-success"'
-                        Else '"badge badge-sm bg-gradient-secondary"'
-                    End) as 'DataStatus_Class'
-        , CONVERT(varchar,(CONVERT(float,c.[Num])/330*100))+'%' as 'percentage'
-        , CONVERT(varchar,(CONVERT(float,c.[Num])/330*100)) as 'percentage_class'
-        , c.*
-        ,(Case
-                        When c.[Num] > 0 Then 'disabled'
-                        Else ''
-                    End) as 'Show_download_btn'
-        ,(Case
-                        When c.[Num] > 0 Then 'Secondary'
-                        Else 'success'
-                    End) as 'Download_btn_class'
-        From(
-                SELECT Top(365)
-                            a.[Date]
-                                    , (Case
-                                        When a.[Day] = '0' Then '(Sun)'
-                                                When a.[Day] = '1' Then '(Mon)'
-                                                When a.[Day] = '2' Then '(Tus)'
-                                                When a.[Day] = '3' Then '(Wed)'
-                                                When a.[Day] = '4' Then '(Thu)'
-                                                When a.[Day] = '5' Then '(Fri)'
-                                                When a.[Day] = '6' Then '(Sat)'
-                                    End) as 'Day',
-                                'https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/'+Left(a.[Date],4)+'/'+Replace(LEFT(a.[Date],7),'-','')+'/RSta0113.'+Replace(a.[Date],'-','')+'-C.csv' as 'Url'
-                                    -- https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/2025/202504/RSta0113.20250407-C.csv
-                                    , ISNULL(b.num,0) as 'Num'
-                                    , (Case
-                                        When b.[Num] > 0 Then '200'
-                                        Else 'Search'
-                                    End) as 'Status_code'
-                        FROM [ReportDb].[dbo].[Date] a
-                            LEFT JOIN(
-                                        SELECT
-                                dataDate,
-                                COUNT(id) as 'num'
-                            From ConvertibleBondDaily
-                            WHERE [dataDate] <= GETDATE()
-                            GROUP BY dataDate) b on a.[Date] =b.dataDate
-                        Where [Date] <= GETDATE() and [Date] like '""" + Year + """'
-                        ORDER BY [Date] DESC) c
-                    """ 
+            SELECT
+                CASE WHEN c.Num > 0 THEN 'Exist' ELSE 'Not Exist' END AS DataStatus,
+                CASE WHEN c.Num > 0 THEN '"badge badge-sm bg-gradient-success"'
+                     ELSE '"badge badge-sm bg-gradient-secondary"' END AS DataStatus_Class,
+                CONVERT(varchar, (CONVERT(float, c.Num) / 330 * 100)) + '%' AS percentage,
+                CONVERT(varchar, (CONVERT(float, c.Num) / 330 * 100)) AS percentage_class,
+                c.*,
+                CASE WHEN c.Num > 0 THEN 'disabled' ELSE '' END AS Show_download_btn,
+                CASE WHEN c.Num > 0 THEN 'Secondary' ELSE 'success' END AS Download_btn_class
+            FROM (
+                SELECT TOP (365)
+                    a.[Date],
+                    CASE a.[Day]
+                        WHEN '0' THEN '(Sun)' WHEN '1' THEN '(Mon)' WHEN '2' THEN '(Tus)'
+                        WHEN '3' THEN '(Wed)' WHEN '4' THEN '(Thu)' WHEN '5' THEN '(Fri)'
+                        WHEN '6' THEN '(Sat)'
+                    END AS Day,
+                    'https://www.tpex.org.tw/storage/bond_zone/tradeinfo/cb/'
+                        + LEFT(a.[Date], 4) + '/'
+                        + REPLACE(LEFT(a.[Date], 7), '-', '') + '/RSta0113.'
+                        + REPLACE(a.[Date], '-', '') + '-C.csv' AS Url,
+                    ISNULL(b.num, 0) AS Num,
+                    CASE WHEN b.Num > 0 THEN '200' ELSE 'Search' END AS Status_code
+                FROM [ReportDb].[dbo].[Date] a
+                LEFT JOIN (
+                    SELECT dataDate, COUNT(id) AS num
+                    FROM ConvertibleBondDaily
+                    WHERE dataDate <= GETDATE()
+                    GROUP BY dataDate
+                ) b ON a.[Date] = b.dataDate
+                WHERE [Date] <= GETDATE() AND [Date] LIKE ?
+                ORDER BY [Date] DESC
+            ) c
+        """
         try:
-            
-            df = pd.read_sql(sql_query, self.conn)
-            result = df.to_dict(orient="records")
-            
-            return result
+            df = pd.read_sql(sql_query, self.conn, params=[year_pattern])
+            return df.to_dict(orient="records")
         except Exception as e:
-            print(f"Database query error: {e}")
-            return None
+            print(f"query_recent_status error: {e}")
+            return []
         finally:
-            self.conn.close()
-    # 查詢資料庫資料天數
-    def get_dataDaysNum(self):
+            self.close()
+
+    def get_data_days_count(self):
         self.connect()
         if not self.conn:
             return None
-        
         try:
-            sql_query = """                                                
-                        SELECT 
-                            count(distinct dataDate) as 'Num'
-                        FROM ConvertibleBondDaily
-                        """
-
-            df = pd.read_sql(sql_query, self.conn)
-            result = df["Num"][0]
-            return str(result)
-        
+            df = pd.read_sql(
+                "SELECT COUNT(DISTINCT dataDate) AS Num FROM ConvertibleBondDaily",
+                self.conn,
+            )
+            return str(df["Num"][0])
         except Exception as e:
-            print(f"Database query error: {e}")
+            print(f"get_data_days_count error: {e}")
             return None
         finally:
-            self.conn.close()
+            self.close()
 
-    # 查詢ConvertibleBondDaily最近一筆上傳日期
-    def get_LatestUpload(self):
+    def get_latest_upload_date(self):
         self.connect()
         if not self.conn:
             return None
-        
         try:
-            sql_query = """                                                
-                        SELECT TOP (1) 
-                        [Date]
-                        FROM [ReportDb].[dbo].[ConvertibleBondDaily_upload_log]
-                        ORDER BY [index] Desc
-                        """
-
-            df = pd.read_sql(sql_query, self.conn)
-            result = df["Date"][0]
-            return str(result)
-        
+            df = pd.read_sql(
+                "SELECT TOP (1) [Date] FROM [ReportDb].[dbo].[ConvertibleBondDaily_upload_log] ORDER BY [index] DESC",
+                self.conn,
+            )
+            return str(df["Date"][0])
         except Exception as e:
-            print(f"Database query error: {e}")
+            print(f"get_latest_upload_date error: {e}")
             return None
         finally:
-            self.conn.close()
-    
-    # 查詢最近交易日
-    def get_TradingDate(self):
+            self.close()
+
+    def get_latest_trading_date(self):
         self.connect()
         if not self.conn:
             return None
-        
         try:
-            sql_query = """                                                
-                        SELECT Top(1) Concat([Date],(Case
-                            When [Day] = '1' Then ' (Mon)'
-                            When [Day] = '2' Then ' (Tus)'
-                            When [Day] = '3' Then ' (Wed)'
-                            When [Day] = '4' Then ' (Thu)'
-                            When [Day] = '5' Then ' (Fri)'
-                        End)) as 'Date'
-                        FROM [ReportDb].[dbo].[Date]
-                        Where [Day] <>  '0' and [Day] <> '6' and [Date] <= GETDATE()
-                        ORDER BY [Date] DESC
-                        """
-            df = pd.read_sql(sql_query, self.conn)
-            result = df["Date"][0]
-            return str(result)
-        
+            df = pd.read_sql(
+                """
+                SELECT TOP (1) CONCAT([Date], CASE [Day]
+                    WHEN '1' THEN ' (Mon)' WHEN '2' THEN ' (Tus)' WHEN '3' THEN ' (Wed)'
+                    WHEN '4' THEN ' (Thu)' WHEN '5' THEN ' (Fri)'
+                END) AS Date
+                FROM [ReportDb].[dbo].[Date]
+                WHERE [Day] NOT IN ('0', '6') AND [Date] <= GETDATE()
+                ORDER BY [Date] DESC
+                """,
+                self.conn,
+            )
+            return str(df["Date"][0])
         except Exception as e:
-            print(f"Database query error: {e}")
+            print(f"get_latest_trading_date error: {e}")
             return None
         finally:
-            self.conn.close()
+            self.close()
 
-    # 查詢資料庫資料年份
-    def get_DataYears(self):
+    def get_data_years(self):
         self.connect()
         if not self.conn:
-            return None
-        
+            return []
         try:
-            sql_query = """                                                
-                        SELECT 
-                        Distinct LEFT(Date,4)  AS Year
-                        FROM Date
-                        Where [Date] <= GETDATE()
-                        ORDER BY [Year] DESC
-                        """
-            df = pd.read_sql(sql_query, self.conn)
-            result = df["Year"].tolist()
-            return result
-        
+            df = pd.read_sql(
+                "SELECT DISTINCT LEFT(Date, 4) AS Year FROM Date WHERE [Date] <= GETDATE() ORDER BY Year DESC",
+                self.conn,
+            )
+            return df["Year"].tolist()
         except Exception as e:
-            print(f"Database query error: {e}")
-            return None
+            print(f"get_data_years error: {e}")
+            return []
         finally:
-            self.conn.close()
+            self.close()
