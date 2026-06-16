@@ -1,8 +1,9 @@
+__pycache__
 .DS_Store
 .vscode/
 app/__pycache__/
 app/file/
 docker/database/
 uploads/
-__pycache__
+downfile.py
 material-dashboard-master.zip
