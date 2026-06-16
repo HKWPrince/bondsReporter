@@ -1,5 +1,5 @@
 .DS_Store
-
+.vscode/
 app/__pycache__/
 app/file/
 docker/database/
